@@ -1,26 +1,23 @@
 import CardList from "../../components/CardList";
-import Form from "../../components/Form";
-
+import CrudForm from "../../components/Form";
+import "./index.css";
 
 const Home = () => {
+  return (
+    <div className="container">
+      <h2>Crud Card</h2>
 
-    return (
-        <div className="container mt-5">
-             <h2>Crud Card</h2>
-
-      <div className="d-flex row justify-content-between align-items-center">
-        <div>
-
-          <Form />
-
+      <div className="main-container">
+        <div className="form-container">
+          <CrudForm />
         </div>
-        <div>
-      <CardList />
-
+        <div className="list-container">
+          <CardList />
         </div>
       </div>
-        </div>
-    );
-}
+      <div className="card-container">{/* <Cards /> */}</div>
+    </div>
+  );
+};
 
 export default Home;
