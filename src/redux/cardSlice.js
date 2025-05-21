@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createCards, fetchCards } from "./actions";
-
+import { fetchCards, createCards, updateCard, deleteCard } from "./actions";
 
 const cardSlice = createSlice({
   name: "cards",
@@ -24,15 +23,44 @@ const cardSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-       .addCase(createCards.pending, (state) => {
+      .addCase(createCards.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(createCards.fulfilled, (state, action) => {
         state.loading = false;
-        state.cards = action.payload;
+        state.cards.push(action.payload);
       })
       .addCase(createCards.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updateCard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCard.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.cards.findIndex(
+          (card) => card._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.cards[index] = action.payload;
+        }
+      })
+      .addCase(updateCard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(deleteCard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteCard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cards = state.cards.filter((card) => card._id !== action.payload);
+      })
+      .addCase(deleteCard.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

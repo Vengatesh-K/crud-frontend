@@ -1,13 +1,7 @@
-// const Form = () => {
-
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   TextField,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Box,
   Typography,
   List,
@@ -16,13 +10,16 @@ import {
   IconButton,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-// import { fetchCards } from "../../redux/cardSlice";
-import { createCards, fetchCards } from "../../redux/actions";
+import {
+  fetchCards,
+  createCards,
+  updateCard,
+  deleteCard,
+  BaseURL,
+} from "../../redux/actions";
 
 const CrudForm = () => {
-  const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({
-    id: "",
     name: "",
     description: "",
     image: null,
@@ -33,10 +30,10 @@ const CrudForm = () => {
   const dispatch = useDispatch();
   const { cards, loading, error } = useSelector((state) => state.cards);
 
-  console.log(cards, 'cards')
+  console.log("Cards from Redux:", cards);
 
   useEffect(() => {
-   dispatch(fetchCards());
+    dispatch(fetchCards());
   }, [dispatch]);
 
   const handleInputChange = (e) => {
@@ -48,42 +45,56 @@ const CrudForm = () => {
     setFormData({ ...formData, image: e.target.files[0] });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editId) {
-      setItems(
-        items.map((item) =>
-          item.id === editId ? { ...formData, id: editId } : item
-        )
-      );
-      setEditId(null);
-    } else {
-      setItems([...items, { ...formData, id: Date.now().toString() }]);
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("description", formData.description);
+    if (formData.image) formDataToSend.append("image", formData.image);
+    formDataToSend.append("status", formData.status);
 
-      dispatch(createCards(formData));
+    try {
+      if (editId) {
+        await dispatch(
+          updateCard({ _id: editId, formData: formDataToSend })
+        ).unwrap();
+        setEditId(null);
+      } else {
+        await dispatch(createCards(formDataToSend)).unwrap();
+      }
+      setFormData({
+        name: "",
+        description: "",
+        image: null,
+        status: "",
+      });
+    } catch (error) {
+      console.error("Submission error:", error);
     }
+  };
 
+  const handleEdit = (card) => {
     setFormData({
-      id: "",
-      name: "",
-      description: "",
+      name: card.name,
+      description: card.description || "",
       image: null,
-      status: "active",
+      status: card.status || "",
     });
+
+    setEditId(card._id);
   };
 
-  const handleEdit = (item) => {
-    setFormData(item);
-    setEditId(item.id);
-  };
-
-  const handleDelete = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+  const handleDelete = async (_id) => {
+    try {
+      await dispatch(deleteCard(_id)).unwrap();
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 2 }}>
-      <Typography variant="h4" align="center" gutterBottom>
+    <Box sx={{ width: 500, mx: "auto", p: 2 }}>
+      <Typography variant="h4" align="center">
         Item Management
       </Typography>
 
@@ -110,7 +121,7 @@ const CrudForm = () => {
         />
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png"
           onChange={handleFileChange}
           style={{
             padding: "8px",
@@ -119,30 +130,28 @@ const CrudForm = () => {
             backgroundColor: "#f5f5f5",
           }}
         />
-        <FormControl fullWidth>
-          <InputLabel>Status</InputLabel>
-          <Select
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            required
-          >
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="inactive">Inactive</MenuItem>
-          </Select>
-        </FormControl>
+        <TextField
+          fullWidth
+          label="Status"
+          name="status"
+          value={formData.status}
+          onChange={handleInputChange}
+          required
+        />
         <Button type="submit" variant="contained" color="primary" fullWidth>
           {editId ? "Update Item" : "Add Item"}
         </Button>
       </form>
 
+      {loading && <Typography>Loading...</Typography>}
+      {error && <Typography color="error">Error: {error}</Typography>}
       <List sx={{ mt: 3 }}>
-        {items.map((item) => (
+        {cards?.map((card) => (
           <ListItem
-            key={item.id}
+            key={card._id}
             secondaryAction={
               <>
-                <IconButton onClick={() => handleEdit(item)}>
+                <IconButton onClick={() => handleEdit(card)}>
                   <svg
                     style={{ width: "20px", height: "20px" }}
                     fill="none"
@@ -157,7 +166,7 @@ const CrudForm = () => {
                     />
                   </svg>
                 </IconButton>
-                <IconButton onClick={() => handleDelete(item.id)}>
+                <IconButton onClick={() => handleDelete(card._id)}>
                   <svg
                     style={{ width: "20px", height: "20px" }}
                     fill="none"
@@ -176,12 +185,20 @@ const CrudForm = () => {
             }
           >
             <ListItemText
-              primary={item.name}
+              primary={card.name}
               secondary={
                 <>
-                  {item.description && <div>{item.description}</div>}
-                  <div>Status: {item.status}</div>
-                  {item.image && <div>Image: {item.image.name}</div>}
+                  {card.description && <div>{card.description}</div>}
+                  <div>Status: {card.status}</div>
+                  {card.imageUrl && (
+                    <div>
+                      <img
+                        src={`${BaseURL}${card.imageUrl}`}
+                        alt={card.name}
+                        style={{ maxWidth: "100px", marginTop: "8px" }}
+                      />
+                    </div>
+                  )}
                 </>
               }
             />

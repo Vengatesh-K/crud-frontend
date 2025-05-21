@@ -1,15 +1,17 @@
 .main-container {
-    /* background-color: red; */
-    /* height: 300px; */
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    align-items: center;
-    margin: 20px;
+    align-items: top;
+    padding: 20px;
 }
 
 .form-container {
-    /* border-right: 2px solid gray; */
+    border: 2px solid gray;
+    border-radius: 15px;
 }
 
-.list-container {}
+.list-container {
+
+    margin-top: 40px;
+}
