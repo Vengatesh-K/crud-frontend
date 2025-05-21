@@ -1,12 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
+import { createCards, fetchCards } from "./actions";
 
-export const fetchCards = createAsyncThunk("users/fetchUsers", async () => {
-  const response = await axios.get(
-    "https://jsonplaceholder.typicode.com/users"
-  );
-  return response.data;
-});
 
 const cardSlice = createSlice({
   name: "cards",
@@ -24,9 +18,21 @@ const cardSlice = createSlice({
       })
       .addCase(fetchCards.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload;
+        state.cards = action.payload;
       })
       .addCase(fetchCards.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+       .addCase(createCards.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createCards.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cards = action.payload;
+      })
+      .addCase(createCards.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

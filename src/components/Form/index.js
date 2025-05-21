@@ -16,7 +16,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCards } from "../../redux/cardSlice";
+// import { fetchCards } from "../../redux/cardSlice";
+import { createCards, fetchCards } from "../../redux/actions";
 
 const CrudForm = () => {
   const [items, setItems] = useState([]);
@@ -30,10 +31,12 @@ const CrudForm = () => {
   const [editId, setEditId] = useState(null);
 
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((state) => state.users);
+  const { cards, loading, error } = useSelector((state) => state.cards);
+
+  console.log(cards, 'cards')
 
   useEffect(() => {
-    dispatch(fetchCards());
+   dispatch(fetchCards());
   }, [dispatch]);
 
   const handleInputChange = (e) => {
@@ -56,6 +59,8 @@ const CrudForm = () => {
       setEditId(null);
     } else {
       setItems([...items, { ...formData, id: Date.now().toString() }]);
+
+      dispatch(createCards(formData));
     }
 
     setFormData({
