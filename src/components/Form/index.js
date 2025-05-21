@@ -17,6 +17,7 @@ import {
   deleteCard,
   BaseURL,
 } from "../../redux/actions";
+import Cards from "../Cards";
 
 const CrudForm = () => {
   const [formData, setFormData] = useState({
@@ -145,66 +146,12 @@ const CrudForm = () => {
 
       {loading && <Typography>Loading...</Typography>}
       {error && <Typography color="error">Error: {error}</Typography>}
-      <List sx={{ mt: 3 }}>
-        {cards?.map((card) => (
-          <ListItem
-            key={card._id}
-            secondaryAction={
-              <>
-                <IconButton onClick={() => handleEdit(card)}>
-                  <svg
-                    style={{ width: "20px", height: "20px" }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </IconButton>
-                <IconButton onClick={() => handleDelete(card._id)}>
-                  <svg
-                    style={{ width: "20px", height: "20px" }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </IconButton>
-              </>
-            }
-          >
-            <ListItemText
-              primary={card.name}
-              secondary={
-                <>
-                  {card.description && <div>{card.description}</div>}
-                  <div>Status: {card.status}</div>
-                  {card.imageUrl && (
-                    <div>
-                      <img
-                        src={`${BaseURL}${card.imageUrl}`}
-                        alt={card.name}
-                        style={{ maxWidth: "100px", marginTop: "8px" }}
-                      />
-                    </div>
-                  )}
-                </>
-              }
-            />
-          </ListItem>
-        ))}
-      </List>
+
+      <Cards
+        cards={cards}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
     </Box>
   );
 };

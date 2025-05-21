@@ -15,7 +15,6 @@ const Home = () => {
           <CardList />
         </div>
       </div>
-      <div className="card-container">{/* <Cards /> */}</div>
     </div>
   );
 };
