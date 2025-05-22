@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   TextField,
   Button,
@@ -27,6 +27,7 @@ const CrudForm = () => {
     status: "",
   });
   const [editId, setEditId] = useState(null);
+  const fileInputRef = useRef(null);
 
   const dispatch = useDispatch();
   const { cards, loading, error } = useSelector((state) => state.cards);
@@ -63,12 +64,16 @@ const CrudForm = () => {
       } else {
         await dispatch(createCards(formDataToSend)).unwrap();
       }
+      // Reset form data
       setFormData({
         name: "",
         description: "",
         image: null,
         status: "",
       });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (error) {
       console.error("Submission error:", error);
     }
@@ -81,7 +86,9 @@ const CrudForm = () => {
       image: null,
       status: card.status || "",
     });
-
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     setEditId(card._id);
   };
 
@@ -124,6 +131,7 @@ const CrudForm = () => {
           type="file"
           accept="image/jpeg,image/png"
           onChange={handleFileChange}
+          ref={fileInputRef}
           style={{
             padding: "8px",
             border: "1px solid #ccc",

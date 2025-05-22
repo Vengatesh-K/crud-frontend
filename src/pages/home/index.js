@@ -4,7 +4,7 @@ import "./index.css";
 
 const Home = () => {
   return (
-    <div className="container">
+    <div className="mx-5">
       <h2>Crud Card</h2>
 
       <div className="main-container">
